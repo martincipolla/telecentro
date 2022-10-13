@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+    nginx:
+        image: nginx:stable-alpine
+        container_name: nginx
+        ports:
+            - 8000:80
+        volumes:
+            - .:/var/www/html
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - crudtelecentro
+            - mysql
+        networks:
+            - telenet
+
+    mysql:
+        image: mysql:5.7
+        container_name: mysql
+        restart: always
+        environment:
+            MYSQL_DATABASE: telecentro
+            MYSQL_USER: jlzint
+            MYSQL_PASSWORD: 123456casa
+            MYSQL_ROOT_PASSWORD: 123456casa
+        ports:
+            - 33069:3306
+        volumes:
+            - dbtelecentro:/var/lib/mysql
+        networks:
+            - telenet
+
+    crudtelecentro:
+        build:
+            args:
+                user: laraveluser
+                uid: 1000
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: crudtelecentro
+        working_dir: /var/www/html
+        volumes:
+            - .:/var/www/html
+        networks:
+            - telenet
+
+networks:
+    telenet:
+volumes:
+    dbtelecentro:
